@@ -8,6 +8,7 @@ import axios from "./api/axios";
 // 1.0.2 Now for the password RegEx it requires at least one lower case letter, one uppercase letter, one digit and one special character, and it can be anywhere from 8 to 24 characters.
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
+// 2.1.1 The best to do that as extra variable, so that we can find it faster if it shall change. ↓
 const REGISTER_URL = "/register";
 
 const Register = () => {
@@ -44,9 +45,35 @@ const Register = () => {
       setErrMsg("Invalid Entry");
       return;
     }
-    console.log(user, pwd);
+    // console.log(user, pwd);
     // 1.8.3 Then, if all correct, we'll set success state to true, so we can inform our user, that his account created successfully. ↓
-    setSuccess(true);
+    // setSuccess(true);
+    // 2.1.0 Now to use "axios" here to communicate with a local server driven by "JSON-server" library let's use "try...catch", where in "try" block of it we'll define "response" that we should get from "axios". We'll use here "await" as it's asynchronous function as we said above. And we'll use axios's method "post" to save a new user in DB. Inside of that "post" method we'll set a register URL. ↑
+    // 2.1.2 So we'll use that REGISTER_URL inside of that method as first argument and the second will be the data we want to save on server (a payload). And inside of this we'll destructure two properties for username ("user") and password ("pwd") as it's what server expect to get from a client. Now there is a third parameter now needs to be added to post, which is an object with HTTP-request "POST" settings, where we need to specify headers.
+    // ? 2.1.3 One of the advantages of using "axios" is that we don't need manually change the response to JSON, it already happens.
+    // 2.1.4 It's also a place where we want to set "success" state to true and optionally to clear input fields as well.
+    // 2.1.5 In a "catch" block we can use different logic, but here we'll use optional chaining to check if err.response has at all, maybe we've lost internet connection, so we'll set "errMsg" state to "No Server Response" then. Next after that we'll check the status and if it has value of 409, that would mean the username we've tried to submit is already taken, so we'll set "errMsg" to "Username Taken". For the rest cases we'll just set "Registration Failed".
+    try {
+      const response = await axios.post(REGISTER_URL, JSON.stringify({user, pwd}), {
+        headers: {"Content-Type": "application/json"},
+        withCredentials: true
+      });
+      console.log(response.data);
+      console.log(response.accessToken);
+      console.log(JSON.stringify(response));
+      setSuccess(true);
+      // clear input fields if it needs
+    } catch (err) {
+      if (!err?.response) {
+        setErrMsg("No Server Response");
+      } else if (err.response?.status === 409) {
+        setErrMsg("Username Taken");
+      } else {
+        setErrMsg("Registration Failed");
+      }
+      // 2.1.6 Finally we want to set the focus on that error field for screen readers.
+      errRef.current.focus();
+    }
   };
 
   // 1.3.0 Here we'll apply the "useEffect" hook to set the focus on the username input field for the first time the component loads. Notice there is nothing in the dependencies array.
