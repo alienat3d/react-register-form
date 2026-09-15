@@ -1,14 +1,23 @@
 // 3.0 Here we'll create a component for a login page which is pretty similar to the Register component. So, we'll need to import a couple of React hooks that we would use here.
-import {useRef, useState, useEffect} from "react";
+// 3.7.5 Let's add the AuthContext here as well as the "useContext" hook. And this will be the global state for our app.
+import {useRef, useState, useEffect, useContext} from "react";
+import AuthContext from "./context/AuthProvider";
+import axios from "./api/axios";
+
+// 3.8.0 Now, if we successfully authenticate when we log in we will set our new auth state and store it in the global context. We'll add "axios" library here into this component and set the endpoint for authorization here. ↓
+const LOGIN_URL = "/auth";
 
 const Login = () => {
-// 3.1 Then we're going to add a couple of refs. The "usernameRef" we'll need to set the focus on that first input when the component loads. And the "errorRef" for setting focus on errors, especially for a screen reader to read if an error occurs.
+  // 3.7.6 So, now we can pull in what we need for our Login component here and that is the "setAuth".
+  const {setAuth} = useContext(AuthContext);
+
+  // 3.1 Then we're going to add a couple of refs. The "usernameRef" we'll need to set the focus on that first input when the component loads. And the "errorRef" for setting focus on errors, especially for a screen reader to read if an error occurs.
   const usernameRef = useRef(null);
   const errorRef = useRef(null);
 
-// 3.2 We also need four pieces of state here. The "username" and the "password" we'll need for the inputs and "errorMessage" corresponds for an error we might get back when user tries to authenticate. The last "success" state is temporary just for this tutorial really to let us show a success message (in the future as wie tie all of this together we would replace that and navigate with React Router to a page of our choice after successful login).
-  const [username, setUsername] = useState("zaplin");
-  const [password, setPassword] = useState("admin123");
+  // 3.2 We also need four pieces of state here. The "username" and the "password" we'll need for the inputs and "errorMessage" corresponds for an error we might get back when user tries to authenticate. The last "success" state is temporary just for this tutorial really to let us show a success message (in the future as wie tie all of this together we would replace that and navigate with React Router to a page of our choice after successful login).
+  const [username, setUsername] = useState("KetiO");
+  const [password, setPassword] = useState("LaLaLand86");
   const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -17,14 +26,61 @@ const Login = () => {
     evt.preventDefault();
     // ? 3.5.2 Now, this is the place where we normally integrate "axios" and some global state for the authorization where we store our database with the users credentials in it.
     // 3.5.3 But we can do that later, and now we're just focused on creating form with React. So, we could just put a flag "success" in here for now to show that form is actually works.
-    console.log(`The username "${username}" is just signed in with the password "${password}".`);
+    // console.log(`The username "${username}" is just signed in with the password "${password}".`);
 
-    // 3.5.4 And right after signing in we can clear both inputs with setting tied to them states to an empty string. ↓
-    setUsername("");
-    setPassword("");
+    // 3.8.1 Now, we're ready to complete the "handleSubmit" function with a real authentication and testing it with backend. And, of course, as we're handling the server request we'll use "try...catch" construction to be able to catch some errors those might occur. Then we'll be trying to send request to the server API with axios method "post" and inside we're pass in "LOGIN_URL" which will attach itself to the base URL that we've already defined in [src/api/axios.js] file. The second parameter here will be "JSON.stringify" method, where we pass in values from "username" & "password" states (that's the payload that our RestAPI is expecting to receive to authenticate a user: "user" & "pwd" is how the fields are named at our RestAPI, that's why we're writing it like that also here).
+    // 3.8.2 As the third parameter we'll set up some options for the request such as headers for JSON data type and also to not forget "withCredentials" set to true.
+    // ? 3.8.3 Now, what is great about using "axios" lib is it will throw an error if there's an error, and we don't have to check here, like we do with fetch to see if the response was okay and likewise we also don't have to response and convert it to JSON — "axios" will take care about that for us.
+    try {
+      const response = await axios.post(LOGIN_URL, JSON.stringify({user: username, pwd: password}), {
+        headers: {"Content-Type": "application/json"},
+        withCredentials: true,
+      });
+      // console.log(username);
+      // console.log(password);
+      // 3.8.4 And you might want to check if everything went well and see the data in the console for the test, so let's stringify the response and the data will be in the "data" property then.
+      console.log(JSON.stringify(response?.data));
+      // console.log(JSON.stringify(response));
 
-    setSuccess(true);
+      // 3.8.5 What is also interesting to get from the backend is the access token that we want to store it with the other user information.
+      const accessToken = response?.data?.accessToken;
+
+      // 3.8.6 And then we also get the roles that we're sending with the data in our RestAPI.
+      const roles = response?.data?.roles;
+
+      // 3.8.7 Now, after we have this extra information we'll call "setAuth" and store all of that at global store auth object.
+      setAuth({username, password, roles, accessToken});
+
+      // 3.5.4 And right after signing in we can clear both inputs with setting tied to them states to an empty string. ↓
+      setUsername("");
+      setPassword("");
+
+      setSuccess(true);
+    } catch (err) {
+      // 3.8.8 Okay, but we also need to handle the errors we might receive. Let's check if there is no response, but we've got and error, so we'll set the errorMessage to "No Server Response".
+      if (!err?.response) {
+        setErrorMessage("No Server Response");
+        console.log(err);
+        // 3.8.9 After that we can check if there is a response, but the status code of it is 400 (which means "the information that was expected wasn't received") then we'll set an error message to "Missing Username or Password".
+      } else if (err.response?.status === 400) {
+        setErrorMessage("Missing Username or Password");
+
+        // 3.8.10 Next case will be with the status code of 401 was returned (which means "unauthorized").
+      } else if (err.response?.status === 401) {
+        setErrorMessage("Unauthorized");
+
+        // 3.8.11 And for the rest cases we'll just set an error to "Login Failed").
+      } else {
+        setErrorMessage("Login Failed");
+      }
+
+      // ? 3.8.12 Of course, there can be other error codes & messages, just depending on what kind of API we're working with and what is expected to get back.
+      // 3.8.13 Yet, we still have to set the focus on that error display so a screen reader can read that information. That's where we had that aria live attribute, and we set it to "assertive", so it announced immediately.
+      errorRef.current.focus();
+    }
   };
+
+// ? 3.9 Okay, after all that been done, let's test it out with our RestAPI, that we've created at another Dave Gray's "Node.js Course for Beginners". So, we'll up in running the server from there and test our form if we can sign in with that and all the different scenarios and see what will happen.
 
 // 3.3.0 We're going to apply "useEffect" hook twice. First, to set the focus on that first input when the component loads ("[]" as dependency points on that).
   useEffect(() => {
@@ -33,11 +89,12 @@ const Login = () => {
 
 // 3.3.1 Second time we'll use "useEffect" to empty out any error message that we might have if the user changes the user state or the password state.
   useEffect(() => {
-    setErrorMessage('');
+    setErrorMessage("");
   }, [username, password]);
 
 // 3.4.0 So, time to add some JSX-code here and create the Login Form. We'll start with the error message display, which will be inside of paragraph HTML-element at the top of the section. Note that it has also an "aria-live='assertive'" attribute, which force the screen readers to announce it immediately, when the focus is set on this element and that's also why we have "errorRef" on it, so we can set the focus there.
-// 3.6.0 Let's also add something in our JSX here that will respond to that "success" flag, when it changed.
+// 3.6 Let's also add something in our JSX here that will respond to that "success" flag, when it changed.
+// (Go to [src/context/AuthProvider.js])
   return (
     <> {success ? (
       <section>
@@ -60,7 +117,7 @@ const Login = () => {
           <input id="password" onChange={(evt) => setPassword(evt.target.value)} value={password} type="password"
                  required/>
           {/* 3.4.2 We don't really need an event listener on this button, as it's the only button the that form, so when it's clicked it will trigger the "submit" event, so we will want to handle that "submit" event with the form. ↑ */}
-          <button type="sumbit">Sign In</button>
+          <button type="submit">Sign In</button>
         </form>
         <p>
           Forgot Password?<br/>
