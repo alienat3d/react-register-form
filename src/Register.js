@@ -72,6 +72,7 @@ const Register = () => {
         setErrMsg("Registration Failed");
       }
       // 2.1.6 Finally we want to set the focus on that error field for screen readers.
+      // (Go to [src/Login.js])
       errRef.current.focus();
     }
   };
@@ -113,7 +114,7 @@ const Register = () => {
           {/* 1.4.0 Let’s describe the key elements with React logic in our component’s layout. So, we'll have a paragraph here to display an error message if one exists. It will be tied to the reference "errRef" and dynamically replaceable CSS classes depending on the "errMsg" indicator state, which will hide or show the message on the screen. The "aria-live" attribute is set to "assertive," meaning that when focus is set on this element, it will be announced by a screen reader. This is important if an error exists. */}
           <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
           <h1>Register</h1>
-          {/* 1.8.0 Let's add "onSubmit" event here as it's a form and we'll add "handleSubmit" function to it, that we'll create above. ↑ */}
+          {/* 1.8.0 Let's add "onSubmit" event here as it's a form, and we'll add "handleSubmit" function to it, that we'll create above. ↑ */}
           <form onSubmit={handleSubmit}>
             <label htmlFor="username">
               Username:
