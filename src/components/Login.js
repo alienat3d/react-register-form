@@ -1,15 +1,30 @@
 // 3.0 Here we'll create a component for a login page which is pretty similar to the Register component. So, we'll need to import a couple of React hooks that we would use here.
 // 3.7.5 Let's add the AuthContext here as well as the "useContext" hook. And this will be the global state for our app.
-import {useRef, useState, useEffect, useContext} from "react";
-import AuthContext from "./context/AuthProvider";
-import axios from "./api/axios";
+// 4.2.2.1 And we can see how this practically works inside the "Login" component. We don't need "useContext" hook & "AuthContext" context here no more, as we've created the "useAuth" custom hook for that. ↓
+// import {useRef, useState, useEffect, useContext} from "react";
+// import AuthContext from "../context/AuthProvider";
+import {useRef, useState, useEffect} from "react";
+import useAuth from "../hooks/useAuth";
+// 4.5.0 Let's add some changes to "Login" comp., so once the user logged in it can take him to where he was headed and of course it will remember where he came from. For that we'll need to import three things from "React Router" here. ↓
+import {Link, useLocation, useNavigate} from "react-router-dom";
+import axios from "../api/axios";
 
 // 3.8.0 Now, if we successfully authenticate when we log in we will set our new auth state and store it in the global context. We'll add "axios" library here into this component and set the endpoint for authorization here. ↓
 const LOGIN_URL = "/auth";
 
 const Login = () => {
   // 3.7.6 So, now we can pull in what we need for our Login component here and that is the "setAuth".
-  const {setAuth} = useContext(AuthContext);
+  // 4.2.3 Then, instead of "useContext" here we'll use our custom hook "useAuth" that'll do the same thing.
+  // const {setAuth} = useContext(AuthContext);
+  // (Go to [src/components/RequireAuth.js])
+  const {setAuth} = useAuth();
+
+  // 4.5.1 Then, right after calling the "useAuth" hook we'll define "navigate" with "useNavigate" and location with "useLocation" hooks.
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // 4.5.2 Here we'll define "from" and we'll say that either location should have the path in the "pathname" if it exists, or it should bring user to the homepage otherwise. ↓
+  const from = location.state?.from?.pathname || "/";
 
   // 3.1 Then we're going to add a couple of refs. The "usernameRef" we'll need to set the focus on that first input when the component loads. And the "errorRef" for setting focus on errors, especially for a screen reader to read if an error occurs.
   const usernameRef = useRef(null);
@@ -19,7 +34,8 @@ const Login = () => {
   const [username, setUsername] = useState("KetiO");
   const [password, setPassword] = useState("LaLaLand86");
   const [errorMessage, setErrorMessage] = useState("");
-  const [success, setSuccess] = useState(false);
+  // 4.5.4 We also can get rid of this "success" state, as we replaced it now with the "navigate" function. ↓
+  // const [success, setSuccess] = useState(false);
 
   // 3.5.1 This function supposed to be asynchronous and will receive the event, and as first we'll do "preventEvent" to stop refreshing the page after clicking the form submit button (as it's the default action for that event). As you might notice, we don't have to pass in the event to the "handleSubmit" function — it receives by default.
   const handleSubmit = async (evt) => {
@@ -55,12 +71,13 @@ const Login = () => {
       setUsername("");
       setPassword("");
 
-      setSuccess(true);
+      // 4.5.3 And after the form is cleared out then we want to navigate away, so instead of just setting "success" state, that we have for testing purposes to true we'll call "navigate" function, where we pass in the path from "from" variable and also options object, where we set "replace" property to true. ↑
+      // setSuccess(true);
+      navigate(from, {replace: true});
     } catch (err) {
       // 3.8.8 Okay, but we also need to handle the errors we might receive. Let's check if there is no response, but we've got and error, so we'll set the errorMessage to "No Server Response".
       if (!err?.response) {
         setErrorMessage("No Server Response");
-        console.log(err);
         // 3.8.9 After that we can check if there is a response, but the status code of it is 400 (which means "the information that was expected wasn't received") then we'll set an error message to "Missing Username or Password".
       } else if (err.response?.status === 400) {
         setErrorMessage("Missing Username or Password");
@@ -81,6 +98,7 @@ const Login = () => {
   };
 
 // ? 3.9 Okay, after all that been done, let's test it out with our RestAPI, that we've created at another Dave Gray's "Node.js Course for Beginners". So, we'll up in running the server from there and test our form if we can sign in with that and all the different scenarios and see what will happen.
+// (Go to [src/index.js])
 
 // 3.3.0 We're going to apply "useEffect" hook twice. First, to set the focus on that first input when the component loads ("[]" as dependency points on that).
   useEffect(() => {
@@ -96,46 +114,45 @@ const Login = () => {
 // 3.6 Let's also add something in our JSX here that will respond to that "success" flag, when it changed.
 // (Go to [src/context/AuthProvider.js])
   return (
-    <> {success ? (
-      <section>
-        <h1>You are logged in!</h1>
-        <br/>
-        <p><a href="#">Go to Home</a></p>
+    // 4.5.5 And we also can remove that fragment from here as well.
+    // (Go to [src/components/RequireAuth.js])
+    /*<> {success ? (
+      <section className="nav-window">
+        <h1 className="message">You are logged in!</h1>
+        <Link className="btn" to="/">Home</Link>
       </section>
-    ) : (
-      <section>
-        <p ref={errorRef} className={errorMessage ? "errmsg" : "offscreen"}
-           aria-live="assertive">{errorMessage}</p>
-        <h1>Sign In</h1>
-        {/* 3.4.1 Next, we'll create a form for signing in with two inputs in it and a submit button to send the data. To tie the inputs to the states we'll use the anonymous functions with "onChange" event listener. Also, to make these inputs "controlled" we'll put the state names to it's "value" attribute. And this is important, when we want to clear this form nad we definitely want to clear a sign-in form. */}
-        {/* 3.5.0 We also need to add the "submit" event listener to the form and the function that will handle it. */}
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="username">Username:</label>
-          <input ref={usernameRef} onChange={(evt) => setUsername(evt.target.value)} value={username} id="username"
-                 type="text" autoComplete="off" required/>
-          <label htmlFor="password">Password:</label>
-          <input id="password" onChange={(evt) => setPassword(evt.target.value)} value={password} type="password"
-                 required/>
-          {/* 3.4.2 We don't really need an event listener on this button, as it's the only button the that form, so when it's clicked it will trigger the "submit" event, so we will want to handle that "submit" event with the form. ↑ */}
-          <button type="submit">Sign In</button>
-        </form>
-        <p>
-          Forgot Password?<br/>
-          <span className="line">
-          {/*put router link here*/}
-            <a href="#">Remind Me!</a>
+    ) : (*/
+    <section>
+      <p ref={errorRef} className={errorMessage ? "errmsg" : "offscreen"}
+         aria-live="assertive">{errorMessage}</p>
+      <h1>Sign In</h1>
+      {/* 3.4.1 Next, we'll create a form for signing in with two inputs in it and a submit button to send the data. To tie the inputs to the states we'll use the anonymous functions with "onChange" event listener. Also, to make these inputs "controlled" we'll put the state names to it's "value" attribute. And this is important, when we want to clear this form nad we definitely want to clear a sign-in form. */}
+      {/* 3.5.0 We also need to add the "submit" event listener to the form and the function that will handle it. */}
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="username">Username:</label>
+        <input ref={usernameRef} onChange={(evt) => setUsername(evt.target.value)} value={username} id="username"
+               type="text" autoComplete="off" required/>
+        <label htmlFor="password">Password:</label>
+        <input id="password" onChange={(evt) => setPassword(evt.target.value)} value={password} type="password"
+               required/>
+        {/* 3.4.2 We don't really need an event listener on this button, as it's the only button the that form, so when it's clicked it will trigger the "submit" event, so we will want to handle that "submit" event with the form. ↑ */}
+        <button type="submit">Sign In</button>
+      </form>
+      <p>
+        Forgot Password?<br/>
+        <span className="line">
+          <Link to="/">Remind Me!</Link>
         </span>
-        </p>
-        <p>
-          Don't Have an Account?<br/>
-          <span className="line">
-          {/*put router link here*/}
-            <a href="#">Sign Up!</a>
+      </p>
+      <p>
+        Don't Have an Account?<br/>
+        <span className="line">
+          <Link to="/register">Sign Up!</Link>
         </span>
-        </p>
-      </section>
-    )}
-    </>
+      </p>
+    </section>
+    /*    )}
+        </>*/
   );
 };
 

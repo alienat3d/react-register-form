@@ -1,7 +1,8 @@
 import {useRef, useState, useEffect} from "react";
+import {Link} from "react-router-dom";
 import {faCheck, faTimes, faInfoCircle} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import axios from "./api/axios";
+import axios from "../api/axios";
 
 // 1.0.0 Okay, we'll start by creating the 'Register' component for our registration form by copying a couple of regular expressions: one to validate usernames and another to validate passwords. That's what we will be validating the user input with in form fields.
 // 1.0.1 Username regex says it must start with a lower or uppercase letter. After that it must be followed by anywhere from 3 to 23 characters that can be a lower or uppercase letters, digits, hyphens or underscores. So overall it must be 4 to 24 characters.
@@ -56,7 +57,7 @@ const Register = () => {
     try {
       const response = await axios.post(REGISTER_URL, JSON.stringify({user, pwd}), {
         headers: {"Content-Type": "application/json"},
-        withCredentials: true
+        withCredentials: true,
       });
       console.log(response.data);
       console.log(response.accessToken);
@@ -103,11 +104,9 @@ const Register = () => {
   return (
     <>
       {success ? (
-        <section>
+        <section className="nav-window">
           <h1>Success!</h1>
-          <p>
-            <a href="#">Sign In</a>
-          </p>
+          <Link className="btn" to="/login">Sign In</Link>
         </section>
       ) : (
         <section>
@@ -209,9 +208,8 @@ const Register = () => {
           <p>
             Already registered?<br/>
             <span className="line">
-                            {/*put router link here*/}
-              <a href="#">Sign In</a>
-                        </span>
+              <Link to="/login">Sign In</Link>
+            </span>
           </p>
         </section>
       )}
