@@ -31,8 +31,8 @@ const Login = () => {
   const errorRef = useRef(null);
 
   // 3.2 We also need four pieces of state here. The "username" and the "password" we'll need for the inputs and "errorMessage" corresponds for an error we might get back when user tries to authenticate. The last "success" state is temporary just for this tutorial really to let us show a success message (in the future as wie tie all of this together we would replace that and navigate with React Router to a page of our choice after successful login).
-  const [username, setUsername] = useState("KetiO");
-  const [password, setPassword] = useState("LaLaLand86");
+  const [username, setUsername] = useState("alienat3d");
+  const [password, setPassword] = useState("iMdABossH3r3!");
   const [errorMessage, setErrorMessage] = useState("");
   // 4.5.4 We also can get rid of this "success" state, as we replaced it now with the "navigate" function. ↓
   // const [success, setSuccess] = useState(false);
