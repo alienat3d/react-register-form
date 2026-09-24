@@ -133,14 +133,15 @@ ul {
 .btn {
   margin-top: auto;
   border-radius: 0.5rem;
-  width: 10rem;
-  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 50px;
   background-color: #fff;
-  text-align: center;
   font-weight: 600;
   text-decoration: none;
-  font-size: 24px;
-  line-height: 42px;
+  font-size: 20px;
   color: #232323 !important;
 }
 
@@ -157,4 +158,75 @@ ul {
   display: flex;
   flex-direction: column;
   min-height: 500px;
+}
+
+/* Custom Checkbox */
+.checkbox-wrapper {
+  --borderColor: #125699;
+  --borderWidth: .125em;
+  margin-top: 10px;
+  display: inline-flex;
+  width: 160px;
+  align-items: center;
+  gap: 10px;
+}
+
+.checkbox-wrapper label {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+  font-size: 16px;
+}
+
+.checkbox-wrapper .input {
+  -webkit-appearance: none;
+  appearance: none;
+  vertical-align: middle;
+  background: #fff;
+  font-size: 1.5em;
+  border-radius: var(--borderWidth);
+  display: inline-block;
+  border: var(--borderWidth) solid var(--borderColor);
+  width: 1em;
+  height: 1em;
+  position: relative;
+}
+
+.checkbox-wrapper .input:before,
+.checkbox-wrapper .input:after {
+  content: "";
+  position: absolute;
+  background: var(--borderColor);
+  width: calc(var(--borderWidth) * 3);
+  height: var(--borderWidth);
+  top: 50%;
+  left: 10%;
+  transform-origin: left center;
+}
+
+.checkbox-wrapper .input:before {
+  transform: rotate(45deg) translate(calc(var(--borderWidth) / -2), calc(var(--borderWidth) / -2)) scaleX(0);
+  transition: transform 200ms ease-in 200ms;
+}
+
+.checkbox-wrapper .input:after {
+  width: calc(var(--borderWidth) * 5);
+  transform: rotate(-45deg) translateY(calc(var(--borderWidth) * 2)) scaleX(0);
+  transform-origin: left center;
+  transition: transform 200ms ease-in;
+}
+
+.checkbox-wrapper .input:checked:before {
+  transform: rotate(45deg) translate(calc(var(--borderWidth) / -2), calc(var(--borderWidth) / -2)) scaleX(1);
+  transition: transform 200ms ease-in;
+}
+
+.checkbox-wrapper .input:checked:after {
+  width: calc(var(--borderWidth) * 5);
+  transform: rotate(-45deg) translateY(calc(var(--borderWidth) * 2)) scaleX(1);
+  transition: transform 200ms ease-out 200ms;
+}
+
+.checkbox-wrapper .input:focus {
+  outline: calc(var(--borderWidth) / 2) dotted dodgerblue;
 }
