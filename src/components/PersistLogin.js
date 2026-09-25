@@ -2,9 +2,10 @@
 // ? 6.0.1 As mentioned, we have a problem with losing the authorization state if the user refreshes the page, goes to another website, and then returns. The state, as well as the access token, gets lost, and the user gets logged out because they are only stored in memory while the tab with the app is open. However, it should be noted that persistent user authentication makes the app less secure. Therefore, if we are trying to create a secure app with sensitive data, it is better to leave out the persistent user authentication.
 
 import {useEffect, useState} from "react";
+import {Outlet} from "react-router-dom";
 import useRefreshToken from "../hooks/useRefreshToken";
 import useAuth from "../hooks/useAuth";
-import {Outlet} from "react-router-dom";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 const PersistLogin = () => {
   // 6.1.0 Alright, let's work on that "persistent user auth" feature, starting with this component. We'll define a state, which will be "isLoading".
@@ -15,7 +16,13 @@ const PersistLogin = () => {
 
   // 6.1.2 And we'll need to grab the global state "auth" from our custom "useAuth" hook.
   // 6.6.3 We'll also add the "persist" state here. ↓
-  const {auth, persist} = useAuth();
+  // 7.8.4 Yet, it's another place we shall apply a fix is this "PersistLogin" component. As we were pulling in here "persist" and is no longer necessary.
+  // const {auth, persist} = useAuth();
+  const {auth} = useAuth();
+
+  // 7.8.5 But what we can do here as well, is that we import "useLocalStorage" here and then pull in "persist" from there. And we'll pass in the "key" and the initial value there too.
+  // (Go to [src/context/AuthProvider.js])
+  const [persist] = useLocalStorage("persist", false);
 
   // 6.1.3 Next, we'll use the "useEffect" hook that should run just once. Inside of that we'll define a "verifyRefreshToken" async func, where we'll try to call the "refresh" func that is going to reach out to the endpoint and take the cookie with it. When it sends that cookie to the "/refresh" endpoint then it brings us back a new access token. And we want to do that before we get to the "requireAuth" comp. that would kick us back out and that's why we've got this component here.
   useEffect(() => {
