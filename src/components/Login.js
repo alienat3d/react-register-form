@@ -39,13 +39,22 @@ const Login = () => {
         withCredentials: true,
       });
       const accessToken = response?.data?.accessToken;
-      const roles = response?.data?.roles;
+      // 8.3.1 We don't need to grab the roles any longer here that we were defining.
+      // (Go to [src/components/RequireAuth.js])
+      // const roles = response?.data?.roles;
 
-      setAuth({username, password, roles, accessToken});
+      // ? 8.1.0 A second-best practice is just to ask yourself a question: "Does the data really need to be stored in state or we putting things in there that we don't need?" Let's look at an example of this here in the "Login" comp. Notice, when we're getting the information back here in the "handleSubmit" func we're putting the "username", "password", "roles" and "accessToken" in the state, but do we really need all of those in the state? Well, the answer here: "Yes and no." Look at our "setAuth" func that we're holding in context, because we don't need all of that.
+      // ? 8.1.2 But the "auth" state holds that data for a long time in React context, and maybe we don't need to have "password" there, as we probably won't use it again. So, no reason to put that in there. The need of "roles" in there is also disputable, but let's come back to that later. What we do need is "accessToken" and the "username" is fairly handy too and isn't something we're guarding, especially if it's something like the username that we might print to the actual public facing web page as well, we're not trying to hide that.
+      // (Go to [src/components/Users.js])
+      // 8.3.0 So, let's back to this part of "Login" comp. and let's ask ourselves if we really need those roles to be stored in "auth" state? The answer is "No" and that's because we're also sending those roles in the access token. We were doing that already so there's no real need to send those roles in addition to sending them in the access token, and we don't need to double up. There is also no reason to show those roles — you might as well hide them at least inside the token. ↑
+      // setAuth({username, password, roles, accessToken});
+      setAuth({username, accessToken});
 
       // 7.5.1 Next, we'll find the occurrences, where we were using "setUsername" and replace them with "resetUsername" function.
       // setUsername("");
       resetUsername();
+
+      // ? 8.1.1 But as far as putting a "password" in state here maybe temporarily just because it's a controlled form, so we have "useState" there above for "password" state & "setPassword" func. That makes sense, but as soon as we submit that password we empty that state out. So, it's only there while the user is actually using the form. ↑
       setPassword("");
 
       navigate(from, {replace: true});

@@ -14,8 +14,8 @@ const useRefreshToken = () => {
     // 5.3.4.0 And then we'll return our previous state "...prev" and overwrite "accessToken" with the new access token, because we'll call this function when our initial request fails and the access token is expired. Then it will refresh, get a new token, and we will retry the request.
     // 5.3.4.1 Also lets include roles to what we're returning: "response.data.roles || prev?.roles" to prevent losing the user's role array when state refreshes. This line ensures roles are maintained across refresh cycles.
     setAuth(prev => {
-      console.log(JSON.stringify(prev));
-      console.log(response.data.accessToken);
+/*      console.log(JSON.stringify(prev));
+      console.log(response.data.accessToken);*/
       return {
         ...prev,
         roles: response.data.roles || prev?.roles,

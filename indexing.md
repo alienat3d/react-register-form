@@ -4,3 +4,4 @@
 * [4: React Login Authentication with JWT Access, Refresh Tokens, Cookies and Axios](https://www.youtube.com/watch?v=nI8PYZNFtac&list=PL0Zuz27SZ-6PRCpm9clX0WiBEMB70FWwd&index=4): From 5.0 (src/components/RequireAuth.js);
 * [5: React Persistent User Login Authentication with JWT Tokens](https://www.youtube.com/watch?v=27KeYk-5vJw&list=PL0Zuz27SZ-6PRCpm9clX0WiBEMB70FWwd&index=5): From 6.0 (src/components/PersistLogin.js);
 * [6: React Login Input Hooks for User Form Data](https://www.youtube.com/watch?v=eQrbjvn_fSc&list=PL0Zuz27SZ-6PRCpm9clX0WiBEMB70FWwd&index=6): From 7.0 (src/components/Login.js);
+* [7: Best Practices for React Data Security, Logins, Passwords, JWTs](https://www.youtube.com/watch?v=3QaFEu-KkR8&list=PL0Zuz27SZ-6PRCpm9clX0WiBEMB70FWwd&index=7): From 8.0 (src/index.js);

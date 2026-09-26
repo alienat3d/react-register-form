@@ -49,10 +49,10 @@ const PersistLogin = () => {
   }, []);
 
   // 6.2.0 Let's add another "useEffect" here for testing purposes to see what's going on. And it will run any time that "isLoading" state changes. We'll be logging "isLoading" state and also would log a value of access token as well.
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(`isLoading: ${isLoading}`);
     console.log(`accessToken: ${JSON.stringify(auth?.accessToken)}`);
-  }, [isLoading]);
+  }, [isLoading]);*/
 
   return (
     <>

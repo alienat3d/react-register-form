@@ -8,6 +8,15 @@ import {AuthProvider} from "./context/AuthProvider";
 // 4.0.1 To start with implementing React Router 6 we'll need to install it first `npm i react-router-dom@6` and then import a couple of things here to use that library. ↓
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 
+// ? 8.0.0 In this React Login Form App we stored all login auth data in state and I logged it to the console so we could see what was happening, but that's only for tutorial you won't do that in production really. And even without logging to the console we could open up React Dev Tools and see all the state data values. And in this tutorial let's look at some simple best practices to keep login data more secure including how to disable React Dev Tools.
+// ? 8.0.1 So, if we open the Dev Tools in Chrome browser for example and find the tab "React Components" in there, then we'll find "AuthProvider" component and click on it, and at it's "state" we'll see all the credentials for that logged user. And let's talk about how can we disable React Dev Tools when we're in production for our app. Now, while it's possible to write your own code to do this, there is a good solution (https://www.npmjs.com/package/@fvilers/disable-react-devtools) published that you can actually use. And we have to use it here in the "index.js" file, as it's written in description to that lib, we just need to install, import it and then run "disableReactDevTools" func. And that's it, in a production our app won't show anything at React Dev Tools plugin.
+// (Go to [src/components/Login.js])
+import {disableReactDevTools} from "@fvilers/disable-react-devtools";
+
+if (process.env.NODE_ENV === "production") {
+  disableReactDevTools();
+}
+
 // 3.7.4 Now here, we'll be wrapping the main "App" component with the global state "AuthProvider" component, that we've just created.
 // (Go to [src/Login.js])
 ReactDOM.render(

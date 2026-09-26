@@ -1,4 +1,5 @@
 import {Navigate, Outlet, useLocation} from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import useAuth from "../hooks/useAuth";
 
 const RequireAuth = ({allowedRoles}) => {
@@ -10,8 +11,17 @@ const RequireAuth = ({allowedRoles}) => {
 
   const location = useLocation();
 
+  // 8.3.3 And then we'll import that library and use it here. We'll use an optional chaining to see if "accessToken" exists in "auth" state and if it is then we'll pass that accessToken into "jwtDecode" method from the same name library.
+  const decoded = auth?.accessToken ? jwtDecode(auth.accessToken) : undefined;
+
+  // 8.3.4 Next, we'll define the user roles because that's what we were using before. So, we'll use optional chaining again and say if "decoded" has "UserInfo" object then get the roles from that or if it doesn't exist let it be just an empty array. ↓
+  const roles = decoded?.UserInfo?.roles || [];
+
+  // 8.3.2 So, let's change here, how "RequireAuth" handles the roles. But first we need to install "jwt-decode" package (https://www.npmjs.com/package/jwt-decode) for that, what we're up to. ↑
+  // 8.3.5 Then, we'll just fix a little how we're rendering users list here, because now we'll just use "find" method to "roles" array, that we've got from decoded from a JWT-token "UserInfo" object. ↓
   return (
-    auth?.roles?.find(role => allowedRoles?.includes(role)) ?
+    // auth?.roles?.find(role => allowedRoles?.includes(role)) ?
+    roles.find(role => allowedRoles?.includes(role)) ?
       <Outlet/> :
       auth?.username ?
         <Navigate to="/unauthorized" state={{from: location}} replace/> :
@@ -20,3 +30,5 @@ const RequireAuth = ({allowedRoles}) => {
 };
 
 export default RequireAuth;
+
+// ? 8.4 Another "best practice" before we finish this tutorial is about "Redux Toolkit" and if you're using it in your project you might want to disable the "Redux Dev Tools" as well. To do that simply add to your "store.js", where you wrote "configureStore" function, add "devTools: false" inside of it.
